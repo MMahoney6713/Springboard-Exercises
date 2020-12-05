@@ -1,4 +1,4 @@
-describe("Servers test (with setup and tear-down)", function() {
+describe("Servers test (with setup and tear-down)", function () {
   beforeEach(function () {
     // initialization logic
     serverNameInput.value = 'Alice';
@@ -11,7 +11,7 @@ describe("Servers test (with setup and tear-down)", function() {
     expect(allServers['server' + serverId].serverName).toEqual('Alice');
   });
 
-  afterEach(function() {
-    // teardown logic
+  afterEach(function () {
+    document.querySelector('#server1').remove();
   });
 });
