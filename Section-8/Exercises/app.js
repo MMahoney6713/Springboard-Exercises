@@ -38,6 +38,7 @@ function addKeyAndValue(objArray, key, val) {
     objArray.forEach(function (obj) {
         obj[key] = val;
     })
+    return objArray;
 }
 
 function vowelCount(str) {
@@ -75,7 +76,7 @@ function extractKey(objArray, key) {
 
 function extractFullName(objArray) {
     return objArray.map(function (obj) {
-        return obj['first'] + ' ' + obj['last'];
+        return obj.first + ' ' + obj.last;
     })
 }
 
