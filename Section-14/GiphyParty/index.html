@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Giphy Party!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container py-5">
+    <h1 class="text-center">GIPHY PARTY</h1>
+    <div class="text-center pb-5">
+      <form action="">
+        <input class="form-control my-3" type="text" name="search" id="search" placeholder="Enter a search term" />
+        <button type="submit" class="btn btn-primary">Search Giphy!</button>
+        <button type="button" class="btn btn-danger removeGifs">Remove Images</button>
+      </form>
+    </div>
+    <div class="row align-items-center" id="gifs">
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
