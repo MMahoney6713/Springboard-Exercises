@@ -1,25 +1,12 @@
-/** Given a query string, return array of matching shows:
- *     { id, name, summary, episodesUrl }
- */
 
+const MISSING_IMAGE_URL = "http://tinyurl.com/missing-tv";
 
 /** Search Shows
  *    - given a search term, search for tv shows that
  *      match that query.  The function is async show it
  *       will be returning a promise.
- *
- *   - Returns an array of objects. Each object should include
- *     following show information:
- *    {
-        id: <show id>,
-        name: <show name>,
-        summary: <show summary>,
-        image: <an image from the show data, or a default imege if no image exists, (image isn't needed until later)>
-      }
  */
 async function searchShows(query) {
-  // TODO: Make an ajax request to the searchShows api.  Remove
-  // hard coded data.
   const showList = [];
   const shows = await axios.get(`http://api.tvmaze.com/search/shows?q=${query}`)
 
@@ -39,7 +26,7 @@ async function searchShows(query) {
           id: show.show.id,
           name: show.show.name,
           summary: show.show.summary,
-          image: 'https://tinyurl.com/tv-missing'
+          image: MISSING_IMAGE_URL
         }
       )
     }
@@ -47,12 +34,9 @@ async function searchShows(query) {
   return showList;
 }
 
-
-
 /** Populate shows list:
  *     - given list of shows, add shows to DOM
  */
-
 function populateShows(shows) {
   const $showsList = $("#shows-list");
   $showsList.empty();
@@ -66,53 +50,21 @@ function populateShows(shows) {
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
           </div>
-          <button class="btn btn-primary episodes">View Episodes</button>
+          <button class="btn btn-primary get-episodes">View Episodes</button>
          </div>
        </div>
       `);
-
     $showsList.append($item);
   }
 }
 
-
-/** Handle search form submission:
- *    - hide episodes area
- *    - get list of matching shows and show in shows list
- */
-
-$("#search-form").on("submit", async function handleSearch(event) {
-  event.preventDefault();
-
-  let query = $("#search-query").val();
-  if (!query) return;
-
-  $("#episodes-area").hide();
-
-  let shows = await searchShows(query);
-
-  populateShows(shows);
-});
-
-$('#shows-list').on('click', '.episodes', async function () {
-  const id = $(this).parent().attr('data-show-id');
-  const episodeInfo = await getEpisodes(id);
-
-})
-
-
 /** Given a show ID, return list of episodes:
  *      { id, name, season, number }
  */
-
 async function getEpisodes(id) {
-  // TODO: get episodes from tvmaze
-  //       you can get this by making GET request to
-  //       http://api.tvmaze.com/shows/SHOW-ID-HERE/episodes
   const episodeInfo = [];
   const episodes = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`)
-  //console.log(episodes);
-  // TODO: return array-of-episode-info, as described in docstring above
+
   for (let episode of episodes.data) {
     episodeInfo.push(
       {
@@ -123,6 +75,42 @@ async function getEpisodes(id) {
       }
     );
   }
-  console.log(episodeInfo);
   return episodeInfo;
 }
+
+// Given the list of episodes, populate the episodes area at bottom of page
+function populateEpisodes(episodes) {
+  const $episodesList = $("#episodes-list");
+  $episodesList.empty();
+
+  for (let episode of episodes) {
+    let $item = $(`
+        <li>${episode.name} (season ${episode.season}, number ${episode.number})</li>
+      `);
+    $episodesList.append($item);
+  }
+  $("#episodes-area").show();
+}
+
+$(function () {
+
+  // Handle search form submission:
+  $("#search-form").on("submit", async function handleSearch(event) {
+    event.preventDefault();
+
+    const query = $("#search-query").val();
+    if (!query) return;
+
+    $("#episodes-area").hide();
+    const shows = await searchShows(query);
+    populateShows(shows);
+  });
+
+  // Handle episode button click:
+  $('#shows-list').on('click', '.get-episodes', async function () {
+    const id = $(this).parent().data('show-id');
+    const episodeInfo = await getEpisodes(id);
+    populateEpisodes(episodeInfo);
+  })
+
+})
