@@ -27,7 +27,7 @@ $(function () {
     })
 
     $('.removeGifs').on('click', function () {
-        $('#gifs').children().remove();
+        $('#gifs').empty();
     })
 
 })
