@@ -117,7 +117,7 @@ class User {
     existingUser.favorites = response.data.user.favorites.map(s => new Story(s));
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
 
-    // attach the token to the newUser instance for convenience
+    // attach the token to the existingUser instance for convenience
     existingUser.loginToken = response.data.token;
 
     return existingUser;
