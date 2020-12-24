@@ -35,14 +35,11 @@ class StoryList {
     return storyList;
   }
 
-  /**
-   * Method to make a POST request to /stories and add the new story to the list
-   * - user - the current instance of User who will post the story
-   * - newStory - a new story object for the API with title, author, and url
-   *
-   * Returns the new story object
-   */
 
+
+  /////////////////////////////////////////////////////////////////
+  //            THE FOLLOWING FUNCTIONS ARE MADE BY ME           //
+  /////////////////////////////////////////////////////////////////
   static async addStory(user, newStory) {
     // TODO - Implement this functions!
     // this function should return the newly created story so it can be used in
@@ -162,6 +159,10 @@ class User {
     return existingUser;
   }
 
+
+  /////////////////////////////////////////////////////////////////
+  //            THE FOLLOWING FUNCTIONS ARE MADE BY ME           //
+  /////////////////////////////////////////////////////////////////
   static async addFavorite(user, storyId) {
     const response = await axios.post(`${BASE_URL}/users/${user.username}/favorites/${storyId}`, {
       token: user.loginToken
