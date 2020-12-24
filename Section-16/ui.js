@@ -71,16 +71,13 @@ $(async function () {
   $navSubmit.on("click", function () {
     // Show the New Story Form
     $newStoryForm.slideToggle(200);
+    $favoritedArticlesList.hide();
   });
 
   $navFavorites.on("click", function () {
-    hideElements();
     generateFavoriteStories();
-
-  });
-
-  $navMyStories.on("click", function () {
-
+    $favoritedArticlesList.slideToggle(200);
+    $newStoryForm.hide();
   });
 
   $articlesContainer.on("click", '.favoritesIcon', async function () {
@@ -94,6 +91,14 @@ $(async function () {
     $(this).toggleClass(['far', 'fas']);
   });
 
+  $articlesContainer.on("click", '.deleteBtn', async function () {
+    const currentStoryId = $(this).parent().attr('id');
+    const responseReceived = await User.deleteStory(currentUser, currentStoryId);
+    if (responseReceived) {
+      $(this).parent().remove();
+    }
+  });
+
   function checkIfInFavorites(currentStoryId) {
     if (currentUser) {
       const favoritesIdsArray = currentUser.favorites.map((story) => (story.storyId));
@@ -103,15 +108,22 @@ $(async function () {
   }
 
   function generateFavoriteStories() {
-    $allStoriesList.hide();
-    $favoritedArticlesList.empty();
+    $articlesList = $favoritedArticlesList.children().first();
+    $articlesList.empty();
     const userFavorites = currentUser.favorites;
     // loop through all of our stories and generate HTML for them
     for (let story of userFavorites) {
       const result = generateStoryHTML(story);
-      $favoritedArticlesList.append(result);
+      $articlesList.append(result);
     }
-    $favoritedArticlesList.slideToggle(200);
+  }
+
+  function checkIfUserStory(currentStoryId) {
+    if (currentUser) {
+      const userStoriesIdsArray = currentUser.ownStories.map((story) => (story.storyId));
+      return userStoriesIdsArray.includes(currentStoryId);
+    }
+    return false;
   }
 
 
@@ -119,8 +131,7 @@ $(async function () {
   ////////////////////////////////////////////////////////////////////////////////////
 
 
-  {/* <li id="${story.storyId}">
-        <i class="far fa-star"></i> */}
+
 
 
 
@@ -193,7 +204,10 @@ $(async function () {
   /**
    * Event handler for Navigation to Homepage
    */
-
+  /////////////////////////////////////////////////////////////////
+  //       THIS FUNCTION CONTAINS ADDITIONAL EDITS FROM ME       //
+  //            ADDED THE GENERATESTORIES FUNCTION               //
+  /////////////////////////////////////////////////////////////////
   $("body").on("click", "#nav-all", async function () {
     hideElements();
     await generateStories();
@@ -264,16 +278,23 @@ $(async function () {
   /**
    * A function to render HTML for an individual Story instance
    */
-
+  /////////////////////////////////////////////////////////////////
+  //       THIS FUNCTION CONTAINS ADDITIONAL EDITS FROM ME       //
+  /////////////////////////////////////////////////////////////////
   function generateStoryHTML(story) {
     const hostName = getHostName(story.url);
 
-    let favoritesIconDescriptor = '';
+    // Check status of favorites
+    let favoritesIconDescriptor = 'far';
     if (checkIfInFavorites(story.storyId)) {
       favoritesIconDescriptor = 'fas';
-    } else {
-      favoritesIconDescriptor = 'far';
     }
+    // Check if story is one of user's own stories
+    let deleteButtonView = 'hidden';
+    if (checkIfUserStory(story.storyId)) {
+      deleteButtonView = '';
+    }
+
     // render story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
@@ -281,6 +302,7 @@ $(async function () {
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
         </a>
+        <i class="fa fa-trash ${deleteButtonView} deleteBtn" aria-hidden="true"></i>
         <small class="article-author">by ${story.author}</small>
         <small class="article-hostname ${hostName}">(${hostName})</small>
         <small class="article-username">posted by ${story.username}</small>
@@ -291,7 +313,9 @@ $(async function () {
   }
 
   /* hide all elements in elementsArr */
-
+  /////////////////////////////////////////////////////////////////
+  //       THIS FUNCTION CONTAINS ADDITIONAL EDITS FROM ME       //
+  /////////////////////////////////////////////////////////////////
   function hideElements() {
     const elementsArr = [
       $submitForm,

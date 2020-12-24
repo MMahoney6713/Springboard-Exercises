@@ -52,8 +52,11 @@ class StoryList {
       token: user.loginToken,
       story: newStory
     });
-    const newStoryObject = new Story(newStoryResponse.data.story);
-    return newStoryObject;
+    if (newStoryResponse) {
+      const newStoryObject = new Story(newStoryResponse.data.story);
+      user.ownStories.push(newStoryObject);
+      return newStoryObject;
+    }
   }
 }
 
@@ -179,7 +182,16 @@ class User {
     }
   }
 
-
+  static async deleteStory(user, storyId) {
+    const response = await axios.delete(`${BASE_URL}/stories/${storyId}`, {
+      params: {
+        token: user.loginToken
+      }
+    });
+    if (response) {
+      return true;
+    }
+  }
 }
 
 /**
