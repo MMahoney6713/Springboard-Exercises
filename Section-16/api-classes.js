@@ -43,10 +43,17 @@ class StoryList {
    * Returns the new story object
    */
 
-  async addStory(user, newStory) {
+  static async addStory(user, newStory) {
     // TODO - Implement this functions!
     // this function should return the newly created story so it can be used in
     // the script.js file where it will be appended to the DOM
+    // ?token=${user.loginToken}
+    const newStoryResponse = await axios.post(`${BASE_URL}/stories`, {
+      token: user.loginToken,
+      story: newStory
+    });
+    const newStoryObject = new Story(newStoryResponse.data.story);
+    return newStoryObject;
   }
 }
 
@@ -62,10 +69,10 @@ class User {
     this.name = userObj.name;
     this.createdAt = userObj.createdAt;
     this.updatedAt = userObj.updatedAt;
+    this.favorites = userObj.favorites;
 
     // these are all set to defaults, not passed in by the constructor
     this.loginToken = "";
-    this.favorites = [];
     this.ownStories = [];
   }
 
@@ -151,6 +158,28 @@ class User {
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
     return existingUser;
   }
+
+  static async addFavorite(user, storyId) {
+    const response = await axios.post(`${BASE_URL}/users/${user.username}/favorites/${storyId}`, {
+      token: user.loginToken
+    });
+    if (response) {
+      user.favorites = response.data.user.favorites;
+    }
+  }
+
+  static async removeFavorite(user, storyId) {
+    const response = await axios.delete(`${BASE_URL}/users/${user.username}/favorites/${storyId}`, {
+      params: {
+        token: user.loginToken
+      }
+    });
+    if (response) {
+      user.favorites = response.data.user.favorites;
+    }
+  }
+
+
 }
 
 /**

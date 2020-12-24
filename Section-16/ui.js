@@ -15,6 +15,27 @@ $(async function () {
   const $navLogin = $("#nav-login");
   const $navLogOut = $("#nav-logout");
 
+
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''//
+
+  // ADDING SELECTORS FOR THE ADDITIONAL LINKS FOR SUBMITTING, VIEWING FAVORITES, AND
+  // VIEWING MY STORIES
+
+  const $newStoryForm = $("#newStory-form");
+  const $navSubmit = $("#nav-submit");
+  const $navFavorites = $("#nav-favorites");
+  const $navMyStories = $("#nav-myStories");
+  const $articlesContainer = $(".articles-container");
+  const $favoritedArticlesList = $("#favorited-articles");
+
+  //................................................................................//
+  ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
   // global storyList variable
   let storyList = null;
 
@@ -22,6 +43,86 @@ $(async function () {
   let currentUser = null;
 
   await checkIfLoggedIn();
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''//
+
+  // ADDING ADDITIONAL EVENT LISTENERS FOR THE ABOVE ADDITIONAL SELECTORS
+
+  $newStoryForm.on("submit", async function (event) {
+    event.preventDefault();
+
+    const newStory = {
+      author: $('#newStory-author').val(),
+      title: $('#newStory-title').val(),
+      url: $('#newStory-url').val()
+    }
+
+    const newStoryAdded = await StoryList.addStory(currentUser, newStory);
+
+    $newStoryForm.trigger('reset');
+    $newStoryForm.slideToggle(200);
+    await generateStories();
+    $allStoriesList.show();
+  });
+
+  $navSubmit.on("click", function () {
+    // Show the New Story Form
+    $newStoryForm.slideToggle(200);
+  });
+
+  $navFavorites.on("click", function () {
+    hideElements();
+    generateFavoriteStories();
+
+  });
+
+  $navMyStories.on("click", function () {
+
+  });
+
+  $articlesContainer.on("click", '.favoritesIcon', async function () {
+    const favoriteStatus = $(this);
+    const currentStoryId = favoriteStatus.parent().attr('id');
+    if (checkIfInFavorites(currentStoryId)) {
+      await User.removeFavorite(currentUser, currentStoryId);
+    } else {
+      await User.addFavorite(currentUser, currentStoryId);
+    }
+    $(this).toggleClass(['far', 'fas']);
+  });
+
+  function checkIfInFavorites(currentStoryId) {
+    if (currentUser) {
+      const favoritesIdsArray = currentUser.favorites.map((story) => (story.storyId));
+      return favoritesIdsArray.includes(currentStoryId);
+    }
+    return false;
+  }
+
+  function generateFavoriteStories() {
+    $allStoriesList.hide();
+    $favoritedArticlesList.empty();
+    const userFavorites = currentUser.favorites;
+    // loop through all of our stories and generate HTML for them
+    for (let story of userFavorites) {
+      const result = generateStoryHTML(story);
+      $favoritedArticlesList.append(result);
+    }
+    $favoritedArticlesList.slideToggle(200);
+  }
+
+
+  //................................................................................//
+  ////////////////////////////////////////////////////////////////////////////////////
+
+
+  {/* <li id="${story.storyId}">
+        <i class="far fa-star"></i> */}
+
+
 
   /**
    * Event listener for logging in.
@@ -41,6 +142,7 @@ $(async function () {
     currentUser = userInstance;
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
+    await generateStories();
   });
 
   /**
@@ -72,6 +174,9 @@ $(async function () {
     localStorage.clear();
     // refresh the page, clearing memory
     location.reload();
+    $navSubmit.hide();
+    $navFavorites.hide();
+    $navMyStories.hide();
   });
 
   /**
@@ -161,11 +266,18 @@ $(async function () {
    */
 
   function generateStoryHTML(story) {
-    let hostName = getHostName(story.url);
+    const hostName = getHostName(story.url);
 
+    let favoritesIconDescriptor = '';
+    if (checkIfInFavorites(story.storyId)) {
+      favoritesIconDescriptor = 'fas';
+    } else {
+      favoritesIconDescriptor = 'far';
+    }
     // render story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
+        <i class="${favoritesIconDescriptor} fa-star favoritesIcon"></i>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
         </a>
@@ -187,7 +299,9 @@ $(async function () {
       $filteredArticles,
       $ownStories,
       $loginForm,
-      $createAccountForm
+      $createAccountForm,
+      $newStoryForm,
+      $favoritedArticlesList,
     ];
     elementsArr.forEach($elem => $elem.hide());
   }
@@ -195,6 +309,9 @@ $(async function () {
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
+    $navSubmit.show();
+    $navFavorites.show();
+    $navMyStories.show();
   }
 
   /* simple function to pull the hostname from a URL */
