@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Number</title>
+</head>
+<body>
+    <h1>Your lucky number is {{lucky_num}}</h1>
+    <h2>{{msg}}</h2>
+
+    {% if lucky_num == 3 %}
+    <h2>That is also my lucky number!</h2>
+    {% else %}
+    <h2>Other content </h2>
+    {% endif %}
+
+
+
+</body>
+</html>
