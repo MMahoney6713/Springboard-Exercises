@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Questions{% endblock %}
+
+{% block content %}
+<h1>Thank you for your submissions!</h1>
+{% for response in responses %}
+<p>{{response}}</p>
+{% endfor %}
+{% endblock %}

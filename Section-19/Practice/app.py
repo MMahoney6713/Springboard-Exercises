@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, flash, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from random import randint, choice
 
@@ -13,12 +13,18 @@ def home_page():
     html = """
     <html>
         <body>
-            <h1>Welcome to my simple app!</h1>
+            <h1>Welcome to my simple app! Mike is the best! <3</h1>
             <a href='/hello'>Go to my hello page</a>
         </body>
     </html>
     """
     return html
+
+
+@app.route('/old-home-page')
+def redirect_to_home():
+    """redirect to new homepage"""
+    return redirect('/')
 
 
 @app.route('/form')
