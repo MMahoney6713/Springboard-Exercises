@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>This is a boggle template</h1>
+    <table>
+        <tbody>
+            {% for row in session['board'] %}
+            <tr>
+                {% for col in row %}
+                <td>{{col}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form action="/guess" method="POST">
+        <input type="text" name="guess" id="guess" placeholder="Guess a word" />
+    </form>
+    <h2>Correct Words:</h2>
+    {% for word in session['words'] %}
+    <p>{{word}}</p>
+    {% endfor %}
+    <p>{{session['words']}}</p>
+</body>
+</html>
