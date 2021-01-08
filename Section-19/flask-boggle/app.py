@@ -7,15 +7,16 @@ app.config['SECRET_KEY'] = "chickens"
 
 
 boggle_game = Boggle()
-WORDS = set()
 
 
 # Reset: new board, and clears the saved words
 @app.route('/')
-def show_board():
-    boggle_game = Boggle()
+def prepare_game():
+    """Creates a new game board, resets the high score to 0 and redirects the user to the /play 
+    route to render the game template"""
+
     session['board'] = boggle_game.make_board()
-    WORDS.clear()
+    session['highScore'] = 0
     return redirect('/play')
 
 
@@ -30,20 +31,30 @@ def dir_last_updated(folder):
 
 @app.route('/play')
 def play_boggle():
+    """Renders the template with the game"""
+
     return render_template('base.html', last_updated=dir_last_updated('static'))
 
 
-@app.route('/guess', methods=['POST'])
+@app.route('/guess')
 def check_guess():
-    guess_word = request.json['guess']
+    """Receives a guessed word from the user, checks it against the boggle board, and
+    returns the result; 'ok', 'not-on-board', or 'not-word'"""
+
+    guess_word = request.args['guess']
     board = session['board']
     check_word = boggle_game.check_valid_word(board, guess_word)
-    if check_word == 'ok':
-        WORDS.add(guess_word)
-    return jsonify({"result": check_word, "board": board})
+    return jsonify({"result": check_word})
 
 
-@ app.route('/apiTest')  # , methods=['POST'])
-def testAPI():
-    greeting = {"greeting": "hello, good job!"}
-    return jsonify(greeting)
+@app.route('/setHighScore', methods=['POST'])
+def set_high_score():
+    """Receives the high score from the game, compares against the previous high score,
+    and then sets the session and returns the resulting highest score between them."""
+
+    new_score = request.json['currentScore']
+    current_high_score = session['highScore']
+    if new_score > current_high_score:
+        current_high_score = new_score
+    session['highScore'] = current_high_score
+    return jsonify({"highScore": current_high_score})

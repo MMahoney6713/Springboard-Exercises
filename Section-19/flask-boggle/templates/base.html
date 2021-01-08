@@ -4,32 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boggle</title>
+    <link rel="stylesheet" href="static/app.css">
 </head>
 <body>
     <h1>Boggle</h1>
-    <table>
-        <tbody>
-            {% for row in session['board'] %}
-            <tr>
-                {% for col in row %}
-                <td>{{col}}</td>
+    <h3>Current High Score: <span id="highScore">0</span></h3>
+    <button id="startGame">Start Game!</button>
+    <div class="hidden" id="gameDiv">
+        <h4>Time Left: <span id="clock">20</span>s</h4>
+        <table>
+            <tbody>
+                {% for row in session['board'] %}
+                <tr>
+                    {% for col in row %}
+                    <td>{{col}}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <form action="" method="">
-        <input type="text" name="guess" id="guess" placeholder="Guess a word" />
-    </form>
-    <h2>Correct Words:</h2>
-    <ul id="ok">
-    </ul>
-    <h2>Not On Board:</h2>
-    <ul id="not-on-board">
-    </ul>
-    <h2>Not A Word:</h2>
-    <ul id="not-word">
-    </ul>
+            </tbody>
+        </table>
+        <form action="" method="">
+            <input type="text" name="guess" id="guess" placeholder="Guess a word" />
+        </form>
+        <h3>Current Score: <span id="currentScore"></span></h3>
+        <h2>Correct Words:</h2>
+        <ul id="ok">
+        </ul>
+        <h2>Not On Board:</h2>
+        <ul id="not-on-board">
+        </ul>
+        <h2>Not A Word:</h2>
+        <ul id="not-word">
+        </ul>
+    </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
