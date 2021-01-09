@@ -1,4 +1,5 @@
 $(function () {
+
     const HOME_URL = 'http://localhost:5000'
     const gameLength = 20;
 
