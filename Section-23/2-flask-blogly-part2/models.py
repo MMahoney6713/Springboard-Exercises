@@ -23,6 +23,8 @@ class User(db.Model):
     image_url = db.Column(db.String(200),
                           default="https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png")
 
+    posts = db.relationship('Post', backref='user', passive_deletes=True)
+
     def __repr__(self):
         """Show user info"""
 
@@ -47,6 +49,5 @@ class Post(db.Model):
     title = db.Column(db.String(20), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-    user = db.relationship('User', backref='posts')
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='CASCADE'), nullable=False)
