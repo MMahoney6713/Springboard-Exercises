@@ -155,17 +155,6 @@ def edit_post(post_id):
                        for tag_id in request.form.getlist("tag-id")]
     post.tags = Tag.query.filter(Tag.id.in_(updated_tag_ids)).all()
 
-    # current_tag_ids = [tag.id for tag in post.tags]
-
-    # updated_tag_ids = request.form.getlist("tag-id")
-
-    # tags_to_add = Tag.query.filter((Tag.id.in_(updated_tag_ids)) & (
-    #     Tag.id.notin_(current_tag_ids))).all()
-    # for tag in tags_to_add:
-    #     post.tags.append(tag)
-
-    # tags_to_remove = Tag.query.filter((Tag.id.notin_(updated_tag_ids)) & (
-    #     Tag.id.in_(current_tag_ids))).all()
     db.session.add(post)
     db.session.commit()
 
