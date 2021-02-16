@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Pet Adoption - Edit Pet{% endblock %}
+
+{% block content %}
+
+<h1>{{pet.name}}</h1>
+<ul>
+    <li>Species: {{pet.species}}</li>
+    {% if pet.photo_url %}
+    <li>
+        <img src="{{pet.image_url}}" alt="Image of {{pet.name}} the {{pet.species}}" width="200">
+    </li>
+    {% endif %}
+    {% if pet.age %}
+    <li>{{pet.age}}</li>
+    {% endif %}
+</ul>
+
+
+<form id="edit-pet-form" method="POST">
+    {{ form.hidden_tag() }}
+
+    {% for field in form
+           if field.widget.input_type != 'hidden' %}
+
+    <p>
+        {{ field.label }}
+        {{ field }}
+
+        {% for error in field.errors %}
+        {{ error }}
+        {% endfor %}
+    </p>
+
+    {% endfor %}
+
+    <button type="submit">Submit</button>
+</form>
+
+<a href="/"><button>Go back</button></a>
+{% endblock %}

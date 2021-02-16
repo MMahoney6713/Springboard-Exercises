@@ -5,7 +5,6 @@
 {% block content %}
 <form id="add-pet-form" method="POST">
     {{ form.hidden_tag() }}
-    <!--add type=hidden form fields -->
 
     {% for field in form
            if field.widget.input_type != 'hidden' %}
