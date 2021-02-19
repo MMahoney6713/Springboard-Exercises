@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import InputRequired, Length
 
-class UserForm(FlaskForm):
+class UserRegisterForm(FlaskForm):
     username = StringField("Username", 
         validators=[InputRequired(), Length(max=20, message="Username must be under 20 characters long")])
     password = PasswordField("Password", validators=[InputRequired()])
@@ -15,3 +15,13 @@ class UserForm(FlaskForm):
         validators=[InputRequired(), Length(max=30, message="Last Name must be under 30 characters long")])
 
 
+class UserLoginForm(FlaskForm):
+    username = StringField("Username", 
+        validators=[InputRequired(), Length(max=20, message="Username must be under 20 characters long")])
+    password = PasswordField("Password", validators=[InputRequired()])
+
+
+class FeedbackForm(FlaskForm):
+    title = StringField("Title", 
+        validators=[InputRequired(), Length(max=100, message="Username must be under 20 characters long")])
+    content = StringField("Content", validators=[InputRequired()])
