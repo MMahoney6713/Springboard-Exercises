@@ -1,0 +1,32 @@
+1. O(n)
+2. O(n)
+3. O(1)
+4. O(n^3)
+5. O(n)
+6. O(n)
+7. nlogn
+8. 2^n
+9. 1
+10. n^2
+
+Step Two:
+1. n
+2. n 
+3. n 
+4. n 
+5. n^2
+6. n 
+
+Part Three:
+1. True 
+2. True 
+3. False 
+4. n 
+5. n 
+6. n 
+7. nlogn
+8. 1
+9. 1
+10. n 
+11. 1
+12. n
