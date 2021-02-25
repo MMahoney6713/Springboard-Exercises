@@ -1,0 +1,6 @@
+2/23/2021
+- Added index=True to username, assuming username will be queried often
+- Separated the Flask debug toolbar for commenting/uncommenting
+
+2/24/2021
+- Added logout functionality

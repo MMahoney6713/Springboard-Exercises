@@ -69,6 +69,7 @@ class User(db.Model):
         db.Text,
         nullable=False,
         unique=True,
+        index=True
     )
 
     image_url = db.Column(
