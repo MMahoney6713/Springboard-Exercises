@@ -1,8 +1,9 @@
 import os
 
-from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from functools import wraps
 
 from forms import UserAddForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
@@ -55,6 +56,16 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            flash("You must be logged in to continue...", "danger")
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
@@ -104,9 +115,14 @@ def login():
         if user:
             do_login(user)
             flash(f"Hello, {user.username}!", "success")
-            return redirect("/")
 
-        flash("Invalid credentials.", 'danger')
+            next_url = request.form.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect("/")
+
+        flash("Invalid login information.", 'danger')
 
     return render_template('users/login.html', form=form)
 
@@ -157,12 +173,13 @@ def users_show(user_id):
 
 
 @app.route('/users/<int:user_id>/following')
+@login_required
 def show_following(user_id):
     """Show list of people this user is following."""
 
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
+    # if not g.user:
+    #     flash("Access unauthorized.", "danger")
+    #     return redirect("/")
 
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
@@ -214,7 +231,9 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
 
 @app.route('/users/delete', methods=["POST"])
