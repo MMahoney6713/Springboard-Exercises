@@ -5,3 +5,4 @@
 2/24/2021
 - Added logout functionality
 - Updated user profile page: header image, bio, and location now show
+- Index, followers, following now show user bios 
