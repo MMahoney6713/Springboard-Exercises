@@ -5,7 +5,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
 
-from forms import UserAddForm, LoginForm, MessageForm
+from forms import UserAddForm, LoginForm, MessageForm, UpdateUserForm
 from models import db, connect_db, User, Message
 
 CURR_USER_KEY = "curr_user"
@@ -56,11 +56,12 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
+# @login_required decorator for routes requiring authentication
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.user is None:
-            flash("You must be logged in to continue...", "danger")
+            flash("Please login to continue.", "danger")
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -219,6 +220,26 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
+    user = g.user
+    form = UpdateUserForm(username=user.username, email=user.email, bio=user.bio)
+
+    if form.validate_on_submit():
+        
+        if User.authenticate(user.username, form.password.data):
+            update_user_with_form_data(user, form)
+            db.session.commit()
+        else:
+            flash('Could not authenticate - please try again.', 'danger')
+
+        return redirect(f'users/{user.id}')
+
+    return render_template('users/edit.html', form=form, user=user)
+
+def update_user_with_form_data(user, form):
+
+    for key in form.data.keys():
+        if key != "password" and form[key].data != '':
+            setattr(user, key, form[key].data)
 
 
 @app.route('/users/delete', methods=["POST"])

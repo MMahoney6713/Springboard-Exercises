@@ -14,8 +14,8 @@ class UserAddForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('E-mail', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[Length(min=6)])
     image_url = StringField('(Optional) Image URL')
+    password = PasswordField('Password', validators=[Length(min=6)])
 
 
 class LoginForm(FlaskForm):
@@ -23,3 +23,12 @@ class LoginForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[Length(min=6)])
+
+
+class UpdateUserForm(UserAddForm):
+    """Form for updating users. Inherits the UserAddForm and then adds additional inputs."""
+
+    header_image_url = StringField('(Optional) Header Image URL')
+    bio = StringField('(Optional) Bio')
+
+
