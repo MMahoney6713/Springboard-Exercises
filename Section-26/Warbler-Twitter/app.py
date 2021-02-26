@@ -235,8 +235,8 @@ def profile():
 
     return render_template('users/edit.html', form=form, user=user)
 
-def update_user_with_form_data(user, form):
 
+def update_user_with_form_data(user, form):
     for key in form.data.keys():
         if key != "password" and form[key].data != '':
             setattr(user, key, form[key].data)
@@ -309,13 +309,17 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-
+    
     if g.user:
+        followed_users_ids = [follower.id for follower in g.user.following] + [g.user.id]
+        
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(followed_users_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+
 
         return render_template('home.html', messages=messages)
 
