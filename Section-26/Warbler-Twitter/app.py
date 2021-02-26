@@ -170,7 +170,7 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    return render_template('users/show.html', user=user, messages=messages)
+    return render_template('users/messages.html', user=user, messages=messages)
 
 
 @app.route('/users/<int:user_id>/following')
@@ -255,6 +255,39 @@ def delete_user():
     return redirect("/signup")
 
 
+@app.route('/users/toggle_likes/<int:message_id>', methods=["POST"])
+@login_required
+def toggle_likes(message_id):
+    """Add like to message"""
+
+    message = Message.query.get_or_404(message_id)
+    likes = [message.id for message in g.user.likes]
+
+    if message_id in likes:
+        g.user.likes.remove(message)
+    else:
+        g.user.likes.append(message)
+
+    db.session.commit()
+
+    return redirect("/")
+
+
+@app.route('/users/<int:user_id>/likes')
+@login_required
+def show_likes(user_id):
+    """Show list of messages this user is likes."""
+
+    user = User.query.get_or_404(user_id)
+    likes_ids = [message.id for message in user.likes]
+    messages = (Message
+                .query
+                .filter(Message.id.in_(likes_ids))
+                .order_by(Message.timestamp.desc())
+                .limit(100)
+                .all())
+    return render_template('users/messages.html', user=user, messages=messages)
+
 ##############################################################################
 # Messages routes:
 
@@ -312,7 +345,7 @@ def homepage():
     
     if g.user:
         followed_users_ids = [follower.id for follower in g.user.following] + [g.user.id]
-        
+
         messages = (Message
                     .query
                     .filter(Message.user_id.in_(followed_users_ids))
@@ -320,8 +353,10 @@ def homepage():
                     .limit(100)
                     .all())
 
+        likes = [message.id for message in g.user.likes]
 
-        return render_template('home.html', messages=messages)
+
+        return render_template('home.html', messages=messages, likes=likes)
 
     else:
         return render_template('home-anon.html')
