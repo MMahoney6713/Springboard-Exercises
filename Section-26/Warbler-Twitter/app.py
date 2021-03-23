@@ -3,7 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
 from config import set_config
-from utilities import get_user
+from utilities import get_user, get_message
 
 from forms import UserAddForm, LoginForm, MessageForm, UpdateUserForm
 from models import db, connect_db, User, Message
@@ -252,7 +252,7 @@ def delete_user():
 def toggle_likes(message_id):
     """Add like to message"""
 
-    message = Message.query.get_or_404(message_id)
+    message = get_message(message_id)
     likes = [message.id for message in g.user.likes]
 
     if message_id in likes:
@@ -307,7 +307,7 @@ def messages_add():
 def messages_show(message_id):
     """Show a message."""
 
-    msg = Message.query.get(message_id)
+    msg = get_message(message_id)
     return render_template('messages/show.html', message=msg)
 
 
@@ -316,7 +316,7 @@ def messages_show(message_id):
 def messages_destroy(message_id):
     """Delete a message."""
 
-    msg = Message.query.get(message_id)
+    msg = get_message(message_id)
     db.session.delete(msg)
     db.session.commit()
 
