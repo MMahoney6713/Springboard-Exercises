@@ -3,6 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
 from config import set_config
+from utilities import get_user
 
 from forms import UserAddForm, LoginForm, MessageForm, UpdateUserForm
 from models import db, connect_db, User, Message
@@ -13,8 +14,8 @@ app = Flask(__name__)
 set_config(app)
 
 # Flask Debug toolbar 
-# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-# toolbar = DebugToolbarExtension(app)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
@@ -153,7 +154,7 @@ def list_users():
 def users_show(user_id):
     """Show user profile."""
 
-    user = User.query.get_or_404(user_id)
+    user = get_user(user_id)
 
     messages = (Message
                 .query
@@ -169,7 +170,7 @@ def users_show(user_id):
 def show_following(user_id):
     """Show list of people this user is following."""
 
-    user = User.query.get_or_404(user_id)
+    user = get_user(user_id)
     return render_template('users/following.html', user=user)
 
 
@@ -178,7 +179,7 @@ def show_following(user_id):
 def users_followers(user_id):
     """Show list of followers of this user."""
 
-    user = User.query.get_or_404(user_id)
+    user = get_user(user_id)
     return render_template('users/followers.html', user=user)
 
 
@@ -187,7 +188,7 @@ def users_followers(user_id):
 def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
 
-    followed_user = User.query.get_or_404(follow_id)
+    followed_user = get_user(follow_id)
     g.user.following.append(followed_user)
     db.session.commit()
 
@@ -199,7 +200,7 @@ def add_follow(follow_id):
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
 
-    followed_user = User.query.get(follow_id)
+    followed_user = get_user(follow_id)
     g.user.following.remove(followed_user)
     db.session.commit()
 
@@ -269,7 +270,7 @@ def toggle_likes(message_id):
 def show_likes(user_id):
     """Show list of messages this user is likes."""
 
-    user = User.query.get_or_404(user_id)
+    user = get_user(user_id)
     likes_ids = [message.id for message in user.likes]
     messages = (Message
                 .query
