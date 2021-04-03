@@ -14,8 +14,8 @@ app = Flask(__name__)
 set_config(app)
 
 # Flask Debug toolbar 
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-toolbar = DebugToolbarExtension(app)
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+# toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
