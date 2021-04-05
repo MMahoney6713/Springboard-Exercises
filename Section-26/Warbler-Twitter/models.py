@@ -170,6 +170,10 @@ class User(db.Model):
 
         return False
 
+    @classmethod
+    def get_user(cls, user_id):
+        return User.query.get_or_404(user_id)
+
 
 class Message(db.Model):
     """An individual message ("warble")."""
@@ -199,6 +203,10 @@ class Message(db.Model):
     )
 
     user = db.relationship('User')
+
+    @classmethod
+    def get_message(cls, message_id):
+        return Message.query.get_or_404(message_id)
 
 
 def connect_db(app):

@@ -3,7 +3,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
 from config import set_config
-from utilities import get_user, get_message
 
 from forms import UserAddForm, LoginForm, MessageForm, UpdateUserForm
 from models import db, connect_db, User, Message
@@ -154,7 +153,7 @@ def list_users():
 def users_show(user_id):
     """Show user profile."""
 
-    user = get_user(user_id)
+    user = User.get_user(user_id)
 
     messages = (Message
                 .query
@@ -179,7 +178,7 @@ def show_following(user_id):
 def users_followers(user_id):
     """Show list of followers of this user."""
 
-    user = get_user(user_id)
+    user = User.get_user(user_id)
     return render_template('users/followers.html', user=user)
 
 
@@ -188,7 +187,7 @@ def users_followers(user_id):
 def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
 
-    followed_user = get_user(follow_id)
+    followed_user = User.get_user(follow_id)
     g.user.following.append(followed_user)
     db.session.commit()
 
@@ -200,7 +199,7 @@ def add_follow(follow_id):
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
 
-    followed_user = get_user(follow_id)
+    followed_user = User.get_user(follow_id)
     g.user.following.remove(followed_user)
     db.session.commit()
 
@@ -252,7 +251,7 @@ def delete_user():
 def toggle_likes(message_id):
     """Add like to message"""
 
-    message = get_message(message_id)
+    message = Message.get_message(message_id)
     likes = [message.id for message in g.user.likes]
 
     if message_id in likes:
@@ -270,7 +269,7 @@ def toggle_likes(message_id):
 def show_likes(user_id):
     """Show list of messages this user is likes."""
 
-    user = get_user(user_id)
+    user = User.get_user(user_id)
     likes_ids = [message.id for message in user.likes]
     messages = (Message
                 .query
@@ -312,7 +311,7 @@ def messages_add():
 def messages_show(message_id):
     """Show a message."""
 
-    msg = get_message(message_id)
+    msg = Message.get_message(message_id)
     return render_template('messages/show.html', message=msg)
 
 
@@ -321,7 +320,7 @@ def messages_show(message_id):
 def messages_destroy(message_id):
     """Delete a message."""
 
-    msg = get_message(message_id)
+    msg = Message.get_message(message_id)
     db.session.delete(msg)
     db.session.commit()
 
