@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, session, g, url_for
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
@@ -283,24 +283,29 @@ def show_likes(user_id):
 ##############################################################################
 # Messages routes:
 
-@app.route('/messages/new', methods=["GET", "POST"])
+@app.route('/messages', methods=["POST"])
 @login_required
 def messages_add():
-    """Add a message:
 
-    Show form if GET. If valid, update message and redirect to user page.
-    """
+    message_text = request.json.get('text');
 
-    form = MessageForm()
-
-    if form.validate_on_submit():
-        msg = Message(text=form.text.data)
-        g.user.messages.append(msg)
+    if message_text != '':
+        new_message = Message(text=message_text)
+        g.user.messages.append(new_message)
         db.session.commit()
 
-        return redirect(f"/users/{g.user.id}")
+        return (jsonify(message={
+                'text': new_message.text,
+                'id': new_message.id,
+                'timestamp': new_message.timestamp.strftime('%d %B %Y'),
+            }, user={
+                'id': g.user.id,
+                'username': g.user.username,
+                'image_url': g.user.image_url
+            }), 201)
 
-    return render_template('messages/new.html', form=form)
+    else:
+        return (jsonify(error="Please enter a message into the text box"), 204)
 
 
 @app.route('/messages/<int:message_id>')

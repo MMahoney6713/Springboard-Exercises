@@ -72,9 +72,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="www.google.com" id="newMessageForm">
+        <form id="newMessageForm">
           <div class="form-group">
             <textarea class="form-control" id="newMessageText" rows="3"></textarea>
+            <small id="newMessageWarning" class="form-text text-danger hidden">Please enter a message.</small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -82,13 +83,13 @@
           </div>
         </form>
       </div>
-      
     </div>
   </div>
 </div>
 <script src="https://unpkg.com/jquery"></script>
 <script src="https://unpkg.com/popper"></script>
 <script src="https://unpkg.com/bootstrap"></script>
+<script src="https://unpkg.com/axios/dist/axios.js"></script>
 <script src="/static/messages.js"></script>
 <script src="/static/likes.js"></script>
 </body>
