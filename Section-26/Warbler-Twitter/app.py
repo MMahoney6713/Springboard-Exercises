@@ -264,27 +264,6 @@ def toggle_likes():
     db.session.commit()
     
     return (jsonify(like_status), 200)
-   
-   
-   
-   
-   
-   
-   
-   
-    # """Add like to message"""
-
-    # message = Message.get_message(message_id)
-    # likes = [message.id for message in g.user.likes]
-
-    # if message_id in likes:
-    #     g.user.likes.remove(message)
-    # else:
-    #     g.user.likes.append(message)
-
-    # db.session.commit()
-
-    # return redirect("/")
 
 
 @app.route('/users/<int:user_id>/likes')
