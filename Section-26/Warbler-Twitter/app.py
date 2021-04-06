@@ -5,7 +5,7 @@ from functools import wraps
 from config import set_config
 
 from forms import UserAddForm, LoginForm, MessageForm, UpdateUserForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
 
@@ -249,19 +249,9 @@ def delete_user():
 @app.route('/users/likes', methods=["POST"])
 @login_required
 def toggle_likes():
-   
-    message_id = request.json.get('messageID')
-    message = Message.get_message(message_id)
-    likes = [message.id for message in g.user.likes]
 
-    if message_id in likes:
-        g.user.likes.remove(message)
-        like_status = 'unliked'
-    else:
-        g.user.likes.append(message)
-        like_status = 'liked'
-
-    db.session.commit()
+    message = Message.get_message_from_id(request.json.get('messageID'))
+    like_status = Likes.toggle_like_status(message, g.user)
     
     return (jsonify(like_status), 200)
 
@@ -304,8 +294,8 @@ def messages_add():
 def messages_show(message_id):
     """Show a message."""
 
-    msg = Message.get_message(message_id)
-    return render_template('messages/show.html', message=msg)
+    message = Message.get_message_from_id(message_id)
+    return render_template('messages/show.html', message=message)
 
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
@@ -313,8 +303,8 @@ def messages_show(message_id):
 def messages_destroy(message_id):
     """Delete a message."""
 
-    msg = Message.get_message(message_id)
-    db.session.delete(msg)
+    message = Message.get_message_from_id(message_id)
+    db.session.delete(message)
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")

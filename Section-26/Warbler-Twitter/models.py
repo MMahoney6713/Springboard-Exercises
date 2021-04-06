@@ -48,6 +48,21 @@ class Likes(db.Model):
         unique=True
     )
 
+    @classmethod
+    def toggle_like_status(cls, message, user):
+
+        likes = [msg.id for msg in user.likes]
+
+        if message.id in likes:
+            user.likes.remove(message)
+            status = 'unliked'
+        else:
+            user.likes.append(message)
+            status = 'liked'
+        
+        db.session.commit()
+        return status
+
 
 class User(db.Model):
     """User in the system."""
@@ -219,7 +234,7 @@ class Message(db.Model):
             }
 
     @classmethod
-    def get_message(cls, message_id):
+    def get_message_from_id(cls, message_id):
         return Message.query.get_or_404(message_id)
 
     @classmethod
