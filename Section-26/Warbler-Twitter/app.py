@@ -246,22 +246,45 @@ def delete_user():
     return redirect("/signup")
 
 
-@app.route('/users/toggle_likes/<int:message_id>', methods=["POST"])
+@app.route('/users/likes', methods=["POST"])
 @login_required
-def toggle_likes(message_id):
-    """Add like to message"""
-
+def toggle_likes():
+   
+    message_id = request.json.get('messageID')
     message = Message.get_message(message_id)
     likes = [message.id for message in g.user.likes]
 
     if message_id in likes:
         g.user.likes.remove(message)
+        like_status = 'unliked'
     else:
         g.user.likes.append(message)
+        like_status = 'liked'
 
     db.session.commit()
+    
+    return (jsonify(like_status), 200)
+   
+   
+   
+   
+   
+   
+   
+   
+    # """Add like to message"""
 
-    return redirect("/")
+    # message = Message.get_message(message_id)
+    # likes = [message.id for message in g.user.likes]
+
+    # if message_id in likes:
+    #     g.user.likes.remove(message)
+    # else:
+    #     g.user.likes.append(message)
+
+    # db.session.commit()
+
+    # return redirect("/")
 
 
 @app.route('/users/<int:user_id>/likes')
@@ -286,7 +309,7 @@ def show_likes(user_id):
 @login_required
 def messages_add():
 
-    message_text = request.json.get('text');
+    message_text = request.json.get('text')
 
     if message_text != '':
         new_message = Message(text=message_text)

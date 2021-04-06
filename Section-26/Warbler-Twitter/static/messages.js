@@ -26,7 +26,7 @@ $(function() {
 
     function addMessageHTML(message, user) {
         const newMessageHTML = $(`
-            <li class="list-group-item">
+            <li class="list-group-item" data-messageID="${message.id}">
                 <a href="/messages/${message.id}" class="message-link"</a>
                 <a href="/users/${user.id}">
                     <img src="${user.image_url}" alt="" class="timeline-image">
