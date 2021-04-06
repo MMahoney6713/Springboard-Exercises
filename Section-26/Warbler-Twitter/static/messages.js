@@ -11,27 +11,27 @@ $(function() {
             const response = await axios.post(`${BASE_URL}/messages`, {
                 text: formTextInput.val()
               });
-
-            // message = Message(response.message)
-            // user = User(response.user)
+            
+            const message = new Message(response.data.message);
+            const user = new User(response.data.user);
     
-            addMessageHTML(response.data.message, response.data.user)
+            addMessageHTML(message, user);
             $('#newMessageModal').modal('hide');
             formTextInput.val('');
         } else {
-            $('#newMessageWarning').show()
+            $('#newMessageWarning').show();
         }
     })
 
-    // Consider having a toggle function to switch between active/nonactive error message
     $('#newMessageModal').on('hidden.bs.modal', function() {
-        $('#newMessageWarning').hide()
+        $('#newMessageWarning').hide();
     })
 
     function addMessageHTML(message, user) {
-        // if message isinstanceof Message ....
         
-        const newMessageHTML = $(`
+        if (message instanceof Message && user instanceof User) {
+
+            const newMessageHTML = $(`
             <li class="list-group-item" data-messageID="${message.id}">
                 <a href="/messages/${message.id}" class="message-link"</a>
                 <a href="/users/${user.id}">
@@ -43,8 +43,9 @@ $(function() {
                     <p>${message.text}</p>
                 </div>
             </li>
-        `);
+            `);
 
-        $('#messages').prepend(newMessageHTML);
+            $('#messages').prepend(newMessageHTML);
+        }
     }
 });
