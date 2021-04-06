@@ -292,18 +292,9 @@ def messages_add():
 
     if message_text != '':
         new_message = Message(text=message_text)
-        g.user.messages.append(new_message)
-        db.session.commit()
+        Message.append_message_to_user(new_message, g.user)
 
-        return (jsonify(message={
-                'text': new_message.text,
-                'id': new_message.id,
-                'timestamp': new_message.timestamp.strftime('%d %B %Y'),
-            }, user={
-                'id': g.user.id,
-                'username': g.user.username,
-                'image_url': g.user.image_url
-            }), 201)
+        return (jsonify(message=new_message.to_json(), user=g.user.to_json()), 201)
 
     else:
         return (jsonify(error="Please enter a message into the text box"), 204)

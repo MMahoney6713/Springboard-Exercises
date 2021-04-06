@@ -11,6 +11,9 @@ $(function() {
             const response = await axios.post(`${BASE_URL}/messages`, {
                 text: formTextInput.val()
               });
+
+            // message = Message(response.message)
+            // user = User(response.user)
     
             addMessageHTML(response.data.message, response.data.user)
             $('#newMessageModal').modal('hide');
@@ -20,11 +23,14 @@ $(function() {
         }
     })
 
+    // Consider having a toggle function to switch between active/nonactive error message
     $('#newMessageModal').on('hidden.bs.modal', function() {
         $('#newMessageWarning').hide()
     })
 
     function addMessageHTML(message, user) {
+        // if message isinstanceof Message ....
+        
         const newMessageHTML = $(`
             <li class="list-group-item" data-messageID="${message.id}">
                 <a href="/messages/${message.id}" class="message-link"</a>

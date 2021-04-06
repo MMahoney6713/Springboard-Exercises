@@ -131,6 +131,13 @@ class User(db.Model):
         found_user_list = [user for user in self.following if user == other_user]
         return len(found_user_list) == 1
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'image_url': self.image_url
+            }
+
     @classmethod
     def signup(cls, username, email, password, image_url):
         """Sign up user.
@@ -204,10 +211,21 @@ class Message(db.Model):
 
     user = db.relationship('User')
 
+    def to_json(self):
+        return {
+            'text': self.text,
+            'id': self.id,
+            'timestamp': self.timestamp.strftime('%d %B %Y')
+            }
+
     @classmethod
     def get_message(cls, message_id):
         return Message.query.get_or_404(message_id)
 
+    @classmethod
+    def append_message_to_user(cls, message, user):
+        user.messages.append(message)
+        db.session.commit()
 
 def connect_db(app):
     """Connect this database to provided Flask app.
