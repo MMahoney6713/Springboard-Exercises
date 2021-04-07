@@ -169,7 +169,7 @@ def users_show(user_id):
 def show_following(user_id):
     """Show list of people this user is following."""
 
-    user = get_user(user_id)
+    user = User.get_user(user_id)
     return render_template('users/following.html', user=user)
 
 

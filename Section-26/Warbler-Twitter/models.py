@@ -44,15 +44,14 @@ class Likes(db.Model):
 
     message_id = db.Column(
         db.Integer,
-        db.ForeignKey('messages.id', ondelete='cascade'),
-        unique=True
+        db.ForeignKey('messages.id', ondelete='cascade')
     )
 
     @classmethod
     def toggle_like_status(cls, message, user):
 
         likes = [msg.id for msg in user.likes]
-
+        # import pdb; pdb.set_trace()
         if message.id in likes:
             user.likes.remove(message)
             status = 'unliked'
