@@ -1,4 +1,5 @@
 const express = require("express");
+const slugify = require("slugify");
 const ExpressError = require("../expressError");
 const router = new express.Router();
 const db = require('../db')
@@ -13,7 +14,7 @@ router.get('/', (request, response, next) => {
 router.get('/:code', (request, response, next) => {
     const { code } = request.params;
 
-    let dbData = {company: '', invoices: ''};
+    let dbData = {company: '', invoices: '', industries: ''};
     let dbPromises = [
         db.query(`SELECT * FROM companies WHERE code=$1`, [code])
             .then(data => dbData.company = data.rows[0])
@@ -21,25 +22,36 @@ router.get('/:code', (request, response, next) => {
 
         db.query(`SELECT * FROM invoices WHERE comp_code = $1`, [code])
             .then(data => dbData.invoices = data.rows)
+            .catch(err => next(err)),
+
+        db.query(`
+            SELECT i.industry FROM industries AS i
+            RIGHT JOIN companies_industries AS ci
+                ON i.code = ci.industry_code
+            LEFT JOIN companies AS c 
+                ON ci.company_code = c.code
+            WHERE c.code = $1;
+            `, [code])
+            .then(data => dbData.industries = data.rows.map(r => r.industry))
             .catch(err => next(err))
     ]
 
     Promise.all(dbPromises)
         .then(result => {
-            console.log(dbData.company)
             if (!dbData.company) {
                 throw new ExpressError(`Company with code ${code} not found.`, 404)
             }
             dbData.company.invoices = dbData.invoices;
+            dbData.company.industries = dbData.industries;
             return response.json({company: dbData.company})
         })
         .catch(err => next(err));
 })
 
 router.post('/', (request, response, next) => {
-    const { code, name, description } = request.body;
-    db.query(`INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description`, [code, name, description])
-        .then(data => response.json({company: data.rows[0]}))
+    const { name, description } = request.body;
+    db.query(`INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description`, [slugify(name), name, description])
+        .then(data => response.status(201).json({company: data.rows[0]}))
         .catch(err => next(err));
 })
 
