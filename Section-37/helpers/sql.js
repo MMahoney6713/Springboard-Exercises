@@ -30,7 +30,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-function sqlGetAllQuery(name, minEmployees, maxEmployees) {
+function sqlGetAllCompanyQuery(name, minEmployees, maxEmployees) {
   /** Generates a sql query 'where' statement containing any requested query information for
    *  name, minEmpoyees, or maxEmployees. The result with a query string containing all three 
    *  parameters:
@@ -57,4 +57,33 @@ function sqlGetAllQuery(name, minEmployees, maxEmployees) {
   return sqlWhereStatements;
 }
 
-module.exports = { sqlForPartialUpdate, sqlGetAllQuery };
+
+
+function sqlGetAllJobQuery(name, minEmployees, maxEmployees) {
+  /** Generates a sql query 'where' statement containing any requested query information for
+   *  name, minEmpoyees, or maxEmployees. The result with a query string containing all three 
+   *  parameters:
+   * 
+   *  WHERE name iLIKE '%name%' AND numEmployees >= minEmployees AND numEmployees <= maxEmployees
+   * 
+   *  If the minEmployees is greater than the maxEmployees, returns an error message.
+   */
+  
+  if (minEmployees > maxEmployees && maxEmployees !== null) {
+    throw new ExpressError("Min Employees cannot be greater than Max Employees", 400)
+  }
+  let sqlWhereStatements = '';
+  let sqlWhereStatementsArray = [];
+  
+  if (name) { sqlWhereStatementsArray.push(`name iLIKE '%${name}%'`) }
+  if (minEmployees) { sqlWhereStatementsArray.push(`num_employees >= ${minEmployees}`) }
+  if (maxEmployees) { sqlWhereStatementsArray.push(`num_employees <= ${maxEmployees}`) }
+
+  if (name || minEmployees || maxEmployees) {
+    sqlWhereStatements = 'WHERE ' + sqlWhereStatementsArray.join(' AND ');
+  }
+  
+  return sqlWhereStatements;
+}
+
+module.exports = { sqlForPartialUpdate, sqlGetAllCompanyQuery, sqlGetAllJobQuery};

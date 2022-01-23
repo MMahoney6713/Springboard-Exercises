@@ -3,7 +3,7 @@
 const { max } = require("pg/lib/defaults");
 const db = require("../db");
 const { BadRequestError, NotFoundError, ExpressError } = require("../expressError");
-const { sqlForPartialUpdate, sqlGetAllQuery } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlGetAllCompanyQuery } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -52,7 +52,7 @@ class Company {
 
   static async findAll(name = '', minEmployees = null, maxEmployees = null) {
 
-    const sqlWhereStatements = sqlGetAllQuery(name, minEmployees, maxEmployees);
+    const sqlWhereStatements = sqlGetAllCompanyQuery(name, minEmployees, maxEmployees);
 
     const companiesRes = await db.query(
           `SELECT handle,
