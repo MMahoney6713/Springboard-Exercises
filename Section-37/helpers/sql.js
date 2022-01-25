@@ -1,4 +1,4 @@
-const { BadRequestError, ExpressError} = require("../expressError");
+const { BadRequestError, ExpressError } = require("../expressError");
 
 // THIS NEEDS SOME GREAT DOCUMENTATION.
 
@@ -21,7 +21,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   if (keys.length === 0) throw new BadRequestError("No data");
 
   const cols = keys.map((colName, idx) =>
-      `"${jsToSql[colName] || colName}"=$${idx + 1}`,
+    `"${jsToSql[colName] || colName}"=$${idx + 1}`,
   );
 
   return {
@@ -39,13 +39,13 @@ function sqlGetAllCompanyQuery(name, minEmployees, maxEmployees) {
    * 
    *  If the minEmployees is greater than the maxEmployees, returns an error message.
    */
-  
+
   if (minEmployees > maxEmployees && maxEmployees !== null) {
     throw new ExpressError("Min Employees cannot be greater than Max Employees", 400)
   }
   let sqlWhereStatements = '';
   let sqlWhereStatementsArray = [];
-  
+
   if (name) { sqlWhereStatementsArray.push(`name iLIKE '%${name}%'`) }
   if (minEmployees) { sqlWhereStatementsArray.push(`num_employees >= ${minEmployees}`) }
   if (maxEmployees) { sqlWhereStatementsArray.push(`num_employees <= ${maxEmployees}`) }
@@ -53,37 +53,33 @@ function sqlGetAllCompanyQuery(name, minEmployees, maxEmployees) {
   if (name || minEmployees || maxEmployees) {
     sqlWhereStatements = 'WHERE ' + sqlWhereStatementsArray.join(' AND ');
   }
-  
+
   return sqlWhereStatements;
 }
 
 
 
-function sqlGetAllJobQuery(name, minEmployees, maxEmployees) {
+function sqlGetAllJobQuery(title, minSalary, equityStatus) {
   /** Generates a sql query 'where' statement containing any requested query information for
-   *  name, minEmpoyees, or maxEmployees. The result with a query string containing all three 
-   *  parameters:
+   *  title, salary, equity. The result with a query string containing all three 
+   *  parameters could look like this:
    * 
-   *  WHERE name iLIKE '%name%' AND numEmployees >= minEmployees AND numEmployees <= maxEmployees
+   *  WHERE title iLIKE '%title%' AND salary >= minSalary AND equity > 0
    * 
-   *  If the minEmployees is greater than the maxEmployees, returns an error message.
    */
-  
-  if (minEmployees > maxEmployees && maxEmployees !== null) {
-    throw new ExpressError("Min Employees cannot be greater than Max Employees", 400)
-  }
+
   let sqlWhereStatements = '';
   let sqlWhereStatementsArray = [];
-  
-  if (name) { sqlWhereStatementsArray.push(`name iLIKE '%${name}%'`) }
-  if (minEmployees) { sqlWhereStatementsArray.push(`num_employees >= ${minEmployees}`) }
-  if (maxEmployees) { sqlWhereStatementsArray.push(`num_employees <= ${maxEmployees}`) }
 
-  if (name || minEmployees || maxEmployees) {
+  if (title) { sqlWhereStatementsArray.push(`title iLIKE '%${title}%'`) }
+  if (minSalary) { sqlWhereStatementsArray.push(`salary >= ${minSalary}`) }
+  if (equityStatus) { sqlWhereStatementsArray.push(`equity > 0`) }
+
+  if (title || minSalary || equityStatus) {
     sqlWhereStatements = 'WHERE ' + sqlWhereStatementsArray.join(' AND ');
   }
-  
+
   return sqlWhereStatements;
 }
 
-module.exports = { sqlForPartialUpdate, sqlGetAllCompanyQuery, sqlGetAllJobQuery};
+module.exports = { sqlForPartialUpdate, sqlGetAllCompanyQuery, sqlGetAllJobQuery };

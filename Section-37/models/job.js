@@ -1,9 +1,8 @@
 "use strict";
 
-const { max } = require("pg/lib/defaults");
 const db = require("../db");
 const { BadRequestError, NotFoundError, ExpressError } = require("../expressError");
-const { sqlForPartialUpdate, sqlGetAllQuery } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlGetAllJobQuery } = require("../helpers/sql");
 
 /** Related functions for jobs. */
 
@@ -16,13 +15,13 @@ class Job {
    * */
 
   static async create({ title, salary, equity, company_handle }) {
-    
+
     const result = await db.query(
-          `INSERT INTO jobs
+      `INSERT INTO jobs
            (title, salary, equity, company_handle)
            VALUES ($1, $2, $3, $4)
            RETURNING id, title, salary, equity, company_handle`,
-        [title, salary, equity, company_handle],
+      [title, salary, equity, company_handle],
     );
     const job = result.rows[0];
 
@@ -32,46 +31,52 @@ class Job {
   /** Find all jobs.
    *
    * Returns [{ id, title, salary, equity, company_handle }, ...]
+   * 
+   * findAll can be run with filters for jobs:
+   *  title: filter by job title. Case-insensitive, matches-any-part-of-string search.
+   *  minSalary: filter to jobs with at least that salary.
+   *  hasEquity: if true, filter to jobs that provide a non-zero amount of equity. 
+   *    If false or not included in the filtering, list all jobs regardless of equity.
+   * 
    * */
 
-  static async findAll(name = '', minEmployees = null, maxEmployees = null) {
+  static async findAll(title = '', minSalary = 0, hasEquity = false) {
 
-    const sqlWhereStatements = sqlGetAllQuery(name, minEmployees, maxEmployees);
+    const sqlWhereStatements = sqlGetAllJobQuery(title, minSalary, hasEquity);
 
     const jobsRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM jobs 
-           ${sqlWhereStatements}
-           ORDER BY name`);
+      `SELECT id, 
+              title,
+              salary,
+              equity,
+              company_handle
+      FROM jobs 
+      ${sqlWhereStatements}
+      ORDER BY title`);
     return jobsRes.rows;
   }
 
-  /** Given a Job handle, return data about Job.
+  /** Given a Job title, return data about Job.
    *
-   * Returns { handle, name, description, numEmployees, logoUrl, jobs }
-   *   where jobs is [{ id, title, salary, equity, JobHandle }, ...]
+   * Returns { id, title, salary, equity, JobHandle }
    *
    * Throws NotFoundError if not found.
    **/
 
-  static async get(handle) {
+  static async get(jobID) {
     const JobRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM jobs
-           WHERE handle = $1`,
-        [handle]);
+      `SELECT id, 
+              title,
+              salary,
+              equity,
+              company_handle
+      FROM jobs
+      WHERE id = $1`,
+      [jobID]);
 
     const Job = JobRes.rows[0];
 
-    if (!Job) throw new NotFoundError(`No Job: ${handle}`);
+    if (!Job) throw new NotFoundError(`No Job with ID of ${jobID}`);
 
     return Job;
   }
@@ -81,34 +86,31 @@ class Job {
    * This is a "partial update" --- it's fine if data doesn't contain all the
    * fields; this only changes provided ones.
    *
-   * Data can include: {name, description, numEmployees, logoUrl}
+   * Data can include: {title, salary, equity}
    *
-   * Returns {handle, name, description, numEmployees, logoUrl}
+   * Returns { id, title, salary, equity, JobHandle }
    *
    * Throws NotFoundError if not found.
    */
 
-  static async update(handle, data) {
+  static async update(jobID, data) {
     const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
-        });
-    const handleVarIdx = "$" + (values.length + 1);
+      data,
+      {});
+    const jobIDVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE jobs 
                       SET ${setCols} 
-                      WHERE handle = ${handleVarIdx} 
-                      RETURNING handle, 
-                                name, 
-                                description, 
-                                num_employees AS "numEmployees", 
-                                logo_url AS "logoUrl"`;
-    const result = await db.query(querySql, [...values, handle]);
+                      WHERE id = ${jobIDVarIdx} 
+                      RETURNING id, 
+                                title, 
+                                salary, 
+                                equity, 
+                                company_handle`;
+    const result = await db.query(querySql, [...values, jobID]);
     const Job = result.rows[0];
 
-    if (!Job) throw new NotFoundError(`No Job: ${handle}`);
+    if (!Job) throw new NotFoundError(`No Job with ID of ${jobID}`);
 
     return Job;
   }
@@ -118,16 +120,16 @@ class Job {
    * Throws NotFoundError if Job not found.
    **/
 
-  static async remove(handle) {
+  static async remove(jobID) {
     const result = await db.query(
-          `DELETE
+      `DELETE
            FROM jobs
-           WHERE handle = $1
-           RETURNING handle`,
-        [handle]);
+           WHERE id = $1
+           RETURNING id`,
+      [jobID]);
     const Job = result.rows[0];
 
-    if (!Job) throw new NotFoundError(`No Job: ${handle}`);
+    if (!Job) throw new NotFoundError(`No Job: ${jobID}`);
   }
 }
 
