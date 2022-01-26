@@ -7,6 +7,7 @@ const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM applications");
   await db.query("DELETE FROM jobs");
   await db.query("DROP TABLE jobs CASCADE")
   await db.query(`
@@ -85,6 +86,21 @@ async function commonBeforeAll() {
     equity: 0,
     company_handle: 'c1'
   })
+  await Job.create({
+    title: "job2",
+    salary: 10000,
+    equity: 0.1,
+    company_handle: 'c1'
+  })
+  await Job.create({
+    title: "job3",
+    salary: 10000,
+    equity: 0.1,
+    company_handle: 'c1'
+  })
+  await User.applyToJob('u1', 1)
+  await User.applyToJob('u1', 2)
+  await User.applyToJob('a1', 1)
 }
 
 async function commonBeforeEach() {
@@ -102,6 +118,7 @@ async function commonAfterAll() {
 
 const u1Token = createToken({ username: "u1", isAdmin: false });
 const a1Token = createToken({ username: "a1", isAdmin: true });
+const u3Token = createToken({ username: "u3", isAdmin: false })
 
 
 module.exports = {
@@ -111,4 +128,5 @@ module.exports = {
   commonAfterAll,
   u1Token,
   a1Token,
+  u3Token,
 };

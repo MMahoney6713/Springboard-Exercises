@@ -125,4 +125,21 @@ router.delete("/:username", ensureLoggedIn, async function (req, res, next) {
 });
 
 
+router.post("/:username/jobs/:jobID", ensureLoggedIn, async function (req, res, next) {
+  try {
+    if (req.params.username !== res.locals.user.username && !res.locals.user.isAdmin) {
+      throw new UnauthorizedError('Only users and admins can add job application')
+    }
+
+    const { username, jobID } = req.params;
+    console.log(username, jobID)
+    await User.applyToJob(username, jobID);
+    return res.status(201).json({ applied: parseInt(jobID) })
+
+  } catch (err) {
+    return next(err);
+  }
+})
+
+
 module.exports = router;

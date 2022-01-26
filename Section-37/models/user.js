@@ -24,7 +24,7 @@ class User {
   static async authenticate(username, password) {
     // try to find the user first
     const result = await db.query(
-          `SELECT username,
+      `SELECT username,
                   password,
                   first_name AS "firstName",
                   last_name AS "lastName",
@@ -32,7 +32,7 @@ class User {
                   is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
-        [username],
+      [username],
     );
 
     const user = result.rows[0];
@@ -57,12 +57,12 @@ class User {
    **/
 
   static async register(
-      { username, password, firstName, lastName, email, isAdmin }) {
+    { username, password, firstName, lastName, email, isAdmin }) {
     const duplicateCheck = await db.query(
-          `SELECT username
+      `SELECT username
            FROM users
            WHERE username = $1`,
-        [username],
+      [username],
     );
 
     if (duplicateCheck.rows[0]) {
@@ -72,7 +72,7 @@ class User {
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 
     const result = await db.query(
-          `INSERT INTO users
+      `INSERT INTO users
            (username,
             password,
             first_name,
@@ -81,14 +81,14 @@ class User {
             is_admin)
            VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
-        [
-          username,
-          hashedPassword,
-          firstName,
-          lastName,
-          email,
-          isAdmin,
-        ],
+      [
+        username,
+        hashedPassword,
+        firstName,
+        lastName,
+        email,
+        isAdmin,
+      ],
     );
 
     const user = result.rows[0];
@@ -103,7 +103,7 @@ class User {
 
   static async findAll() {
     const result = await db.query(
-          `SELECT username,
+      `SELECT username,
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
@@ -125,19 +125,21 @@ class User {
 
   static async get(username) {
     const userRes = await db.query(
-          `SELECT username,
+      `SELECT username,
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
                   is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
-        [username],
+      [username],
     );
 
     const user = userRes.rows[0];
-
     if (!user) throw new NotFoundError(`No user: ${username}`);
+
+    const jobsRes = await db.query(`SELECT job_id FROM applications WHERE username = $1`, [username])
+    user.jobs = jobsRes.rows.map(job => job.job_id);
 
     return user;
   }
@@ -165,12 +167,12 @@ class User {
     }
 
     const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          firstName: "first_name",
-          lastName: "last_name",
-          isAdmin: "is_admin",
-        });
+      data,
+      {
+        firstName: "first_name",
+        lastName: "last_name",
+        isAdmin: "is_admin",
+      });
     const usernameVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE users 
@@ -190,15 +192,47 @@ class User {
     return user;
   }
 
+  /** Adds the job to the list of applied jobs in the user. Returns the username and jobID for the application
+   * if successful, or if duplicate job application from user then returns BadRequestError.
+   */
+
+  static async applyToJob(username, jobID) {
+    const duplicateCheck = await db.query(
+      `SELECT username
+         FROM applications
+         WHERE job_id = $1 AND username = $2`, [jobID, username],
+    );
+
+    if (duplicateCheck.rows[0]) {
+      throw new BadRequestError(`${username} cannot apply to this job: already applied`);
+    }
+
+    const jobIDCheck = await db.query(`SELECT id FROM jobs WHERE id = $1`, [jobID])
+
+    if (!jobIDCheck.rows[0]) {
+      throw new BadRequestError(`No job with ID ${jobID} exists`)
+    }
+
+    const result = await db.query(
+      `INSERT INTO applications (username, job_id)
+        VALUES ($1, $2)
+        RETURNING username, job_id`, [username, jobID],
+    );
+
+    const application = result.rows[0];
+
+    return application;
+  }
+
   /** Delete given user from database; returns undefined. */
 
   static async remove(username) {
     let result = await db.query(
-          `DELETE
+      `DELETE
            FROM users
            WHERE username = $1
            RETURNING username`,
-        [username],
+      [username],
     );
     const user = result.rows[0];
 

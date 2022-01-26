@@ -139,6 +139,20 @@ describe("GET /companies/:handle", function () {
             salary: 100000,
             title: "job1",
           },
+          {
+            company_handle: "c1",
+            equity: "0.1",
+            id: 2,
+            salary: 10000,
+            title: "job2",
+          },
+          {
+            company_handle: "c1",
+            equity: "0.1",
+            id: 3,
+            salary: 10000,
+            title: "job3",
+          },
         ],
       },
     });

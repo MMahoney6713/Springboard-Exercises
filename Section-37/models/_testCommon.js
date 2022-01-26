@@ -4,6 +4,7 @@ const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM applications");
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM jobs");
   await db.query("DROP TABLE jobs CASCADE")
@@ -45,6 +46,12 @@ async function commonBeforeAll() {
     VALUES ('title1', 100000, 0, 'c1'),
            ('title2', 120000, 0.1, 'c1'),
            ('title3', 50000, 0, 'c2')
+  `)
+
+  await db.query(`
+    INSERT INTO applications (username, job_id)
+    VALUES ('u1', 1), 
+           ('u1', 2)
   `)
 }
 
