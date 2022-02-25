@@ -130,8 +130,6 @@ class Node {
         return null;
       }
 
-      const newNode = new Node(val);
-
       let currentNode = this.head;
       let prevNode = null;
       let currentIdx = 0;
@@ -141,9 +139,11 @@ class Node {
         currentIdx++;
       }
 
-      
+      const newNode = new Node(val);
+      prevNode.next = newNode;
+      newNode.next = currentNode;
 
-      return currentNode.val;
+      return undefined;
     }
   
     /** removeAt(idx): return & remove item at idx, */
@@ -155,7 +155,21 @@ class Node {
     /** average(): return an average of all values in the list */
   
     average() {
-      
+      if (idx >= this.length || idx < 0) {
+        console.log("Invalid index.");
+        return null;
+      }
+
+      let currentNode = this.head;
+      let currentIdx = 0;
+      let sum = currentNode.val;
+      while (currentIdx != idx) {
+        currentNode = currentNode.next;
+        currentIdx++;
+        sum += currentNode.val;
+      }
+
+      return sum / this.length;
     }
   }
   
