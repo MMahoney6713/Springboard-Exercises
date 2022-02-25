@@ -19,43 +19,131 @@ class Node {
     /** push(val): add new value to end of list. */
   
     push(val) {
-  
+      let newNode = new Node(val);
+
+      if (!this.head) {
+        this.head = newNode;
+      }
+      if (this.tail) {
+        this.tail.next = newNode;
+      }
+
+      this.tail = newNode;
+
+      this.length++;
     }
   
     /** unshift(val): add new value to start of list. */
   
     unshift(val) {
-  
+      let newNode = new Node(val);
+
+      if (!this.head) {
+        this.head = newNode;
+        this.tail = newNode;
+      } else {
+        newNode.next = this.head;
+        this.head = newNode;
+      }
+
+      this.length++;
     }
   
     /** pop(): return & remove last item. */
   
     pop() {
-  
+      let returnVal = null;
+
+      if (this.tail) {
+        let currentNode = this.head;
+        let prevNode = '';
+        while (currentNode.next) {
+          prevNode = currentNode;
+          currentNode = currentNode.next;
+        }
+        prevNode.next = null;
+        this.tail = prevNode;
+        returnVal = currentNode.val;
+        this.length--;
+      }
+
+      return returnVal;
     }
   
     /** shift(): return & remove first item. */
   
     shift() {
-  
+      let returnVal = null;
+
+      if (this.head) {
+        returnVal = this.head.val;
+        this.head = this.head.next;
+        this.length--;
+      }
+
+      return returnVal;
     }
   
     /** getAt(idx): get val at idx. */
   
     getAt(idx) {
-  
+      if (idx >= this.length || idx < 0) {
+        console.log("Invalid index.");
+        return null;
+      }
+
+      let currentNode = this.head;
+      let currentIdx = 0;
+      while (currentIdx != idx) {
+        currentNode = currentNode.next;
+        currentIdx++;
+      }
+
+      return currentNode.val;
     }
   
     /** setAt(idx, val): set val at idx to val */
   
     setAt(idx, val) {
-  
+      if (idx >= this.length || idx < 0) {
+        console.log("Invalid index.");
+        return null;
+      }
+
+      let currentNode = this.head;
+      let currentIdx = 0;
+      while (currentIdx != idx) {
+        currentNode = currentNode.next;
+        currentIdx++;
+      }
+
+      currentNode.val = val;
+
+      return currentNode.val;
     }
   
     /** insertAt(idx, val): add node w/val before idx. */
   
     insertAt(idx, val) {
-  
+      if (idx >= this.length || idx < 0) {
+        console.log("Invalid index.");
+        return null;
+      }
+
+      const newNode = new Node(val);
+
+      let currentNode = this.head;
+      let prevNode = null;
+      let currentIdx = 0;
+      while (currentIdx != idx) {
+        prevNode = currentNode;
+        currentNode = currentNode.next;
+        currentIdx++;
+      }
+
+      
+
+      return currentNode.val;
     }
   
     /** removeAt(idx): return & remove item at idx, */
